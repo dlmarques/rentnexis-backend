@@ -156,7 +156,7 @@ exports.verifyUser = async (req, res, next) => {
 
     if (!user) throw new Error("Invalid link");
 
-    const isTokenValid = await checkToken(token);
+    const isTokenValid = checkToken(token);
 
     if (!isTokenValid) throw new Error("Invalid link");
 
