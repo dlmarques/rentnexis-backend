@@ -1,0 +1,38 @@
+# Node modules
+node_modules/
+
+# Logs
+logs
+*.log
+
+# Dependency directory
+# Comment next line out if using Yarn
+# /npm-debug.log*
+
+# Optional npm cache directory
+.npm
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+
+# Editor directories and files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+
+
+# Temporary files
+*.tmp
+
+# Build output
+/build/
+/dist/
+/public/
+
+
+# Environment Files
+.env
+.env.*

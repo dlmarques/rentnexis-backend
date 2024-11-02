@@ -1,0 +1,53 @@
+END-USER LICENSE AGREEMENT (EULA) FOR RENTNEXIS
+
+Last updated: June 10, 2024
+
+© 2024 Daniel Marques. All rights reserved.
+
+IMPORTANT - PLEASE READ CAREFULLY
+
+This End-User License Agreement ("EULA") is a legal agreement between you (either an individual or a single entity) and the author of RentNexis software ("Licensor") for the RentNexis software product ("Software"), which includes computer software and may include associated media, printed materials, and "online" or electronic documentation.
+
+By installing, copying, or otherwise using the Software, you agree to be bound by the terms of this EULA. If you do not agree to the terms of this EULA, do not install or use the Software.
+
+1. GRANT OF LICENSE
+   Licensor grants you a non-exclusive, non-transferable, limited license to use the Software solely for your personal or internal business purposes, subject to the terms and conditions set forth in this EULA.
+
+2. RESTRICTIONS
+   a. You may not sell, rent, lease, distribute, or otherwise transfer the Software or any portion thereof to any third party without prior written consent from Licensor.
+   b. You may not reverse engineer, decompile, or disassemble the Software, except to the extent that such activity is expressly permitted by applicable law.
+   c. You may not modify, adapt, or create derivative works based on the Software without prior written consent from Licensor.
+
+3. OWNERSHIP
+   The Software is licensed, not sold. Licensor retains all right, title, and interest in and to the Software, including all intellectual property rights therein.
+
+4. TERMINATION
+   This EULA is effective until terminated. Your rights under this EULA will terminate automatically without notice from Licensor if you fail to comply with any term(s) of this EULA. Upon termination, you must cease all use of the Software and destroy all copies of the Software in your possession or control.
+
+5. DISCLAIMER OF WARRANTIES
+   The Software is provided "AS IS" and without warranty of any kind, express or implied, including but not limited to the implied warranties of merchantability, fitness for a particular purpose, and non-infringement.
+
+6. LIMITATION OF LIABILITY
+   In no event shall Licensor be liable for any special, incidental, indirect, or consequential damages whatsoever arising out of the use of or inability to use the Software, even if Licensor has been advised of the possibility of such damages.
+
+7. GOVERNING LAW
+   This EULA shall be governed by and construed in accordance with the laws of Portugal, Lisboa, without regard to its conflict of law principles.
+
+8. ENTIRE AGREEMENT
+   This EULA constitutes the entire agreement between you and Licensor concerning the Software and supersedes all prior or contemporaneous communications, agreements, and understandings, whether oral or written, with respect to the Software.
+
+9. INDEMNITY
+   You agree to indemnify, defend, and hold harmless Licensor from any claims, damages, liabilities, costs, and expenses (including reasonable attorney's fees) arising from your use of the Software.
+
+10. PRIVACY POLICY
+   Your use of the Software is also governed by our Privacy Policy, which is incorporated by reference into this EULA.
+
+11. UPDATES AND MAINTENANCE
+   Licensor is not obligated to provide any updates or maintenance for the Software. Any updates provided by Licensor shall be governed by this EULA.
+
+12. THIRD-PARTY SOFTWARE
+   The Software may include third-party software components that are subject to separate license terms. Your use of such components is governed by their respective licenses.
+
+If you have any questions about this EULA, please contact us at daniel.marquesedigital@gmail.com.
+
+By using the Software, you acknowledge that you have read and understood this EULA and agree to be bound by its terms and conditions.
