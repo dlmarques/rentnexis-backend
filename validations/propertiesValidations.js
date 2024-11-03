@@ -9,7 +9,7 @@ const createPropertyValidation = (data) => {
     bathrooms: Joi.number().required(),
     amenities: Joi.array().items(Joi.string()).required(),
     rules: Joi.array().items(Joi.string()).required(),
-    owner_id: Joi.number().required(),
+    owner_id: Joi.string().uuid().required(),
   });
   return schema.validate(data);
 };
@@ -23,7 +23,7 @@ const updatePropertyValidation = (data) => {
     bathrooms: Joi.number().required(),
     amenities: Joi.array().items(Joi.string()).required(),
     rules: Joi.array().items(Joi.string()).required(),
-    owner_id: Joi.number().required(),
+    owner_id: Joi.string().uuid().required(),
   });
   return schema.validate(data);
 };
