@@ -105,8 +105,8 @@ exports.create = async (req, res) => {
   }
 
   //check if lease start date are valid
-  const startDate = moment(lease_start_date);
-  const endDate = moment(lease_end_date);
+  const startDate = moment(lease_start_date * 1000);
+  const endDate = moment(lease_end_date * 1000);
 
   const diff = startDate.diff(moment.now(), "days");
 
