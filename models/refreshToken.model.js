@@ -35,7 +35,7 @@ const createToken = async (user, res) => {
   if (hasTokens) await deleteUserTokens(user.user_id);
 
   let expiredAt = new Date();
-  expiredAt.setSeconds(expiredAt.getSeconds() + config.jwtRefreshExpiration);
+  expiredAt.setSeconds(expiredAt.getSeconds() + "3600");
 
   let _token = uuidv4();
   const result = await pool.query(INSERT_REFRESH_TOKEN_QUERY, [

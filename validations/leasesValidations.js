@@ -4,8 +4,8 @@ const createLeaseValidation = (data) => {
   const schema = Joi.object({
     property_id: Joi.number().required(),
     landlord_id: Joi.number().required(),
-    lease_start_date: Joi.string().required(),
-    lease_end_date: Joi.string().required(),
+    lease_start_date: Joi.number().required(),
+    lease_end_date: Joi.number().required(),
     rent_amount: Joi.number().required(),
     first_payment_amount: Joi.number().required(),
     guarantee_amount: Joi.number().required(),
