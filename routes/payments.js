@@ -22,4 +22,10 @@ router.post(
   controller.getPaidPaymentsByLease
 );
 
+router.post(
+  "/getNextPaymentByLeaseId",
+  [verifyToken],
+  controller.getNextPaymentByLease
+);
+
 module.exports = router;
