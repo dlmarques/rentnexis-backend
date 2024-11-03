@@ -233,3 +233,35 @@ exports.getPaidPaymentsByLease = async (req, res) => {
 
   res.status(200).send(successResponse(SUCCESS, filteredPayments));
 };
+
+exports.getNextPaymentByLease = async (req, res) => {
+  const { leaseId } = req.body;
+  const _token = req.headers["x-access-token"];
+
+  //get id from token
+  const userId = jwt.decode(_token).id;
+
+  const leaseResult = await pool.query(SELECT_LEASE_BY_ID_QUERY, [leaseId]);
+
+  if (leaseResult.rowCount < 1)
+    return res.status(404).send(errorResponse(NO_LEASE_FOUND));
+
+  const lease = leaseResult.rows[0];
+
+  if (lease.landlord_id !== userId && lease.tenant_id !== userId)
+    return res.status(401).send(errorResponse(UNAUTHORIZED));
+
+  const payments = await this.selectPayments(leaseId);
+
+  if (payments.length < 1)
+    res.status(404).send(errorResponse(NO_PAYMENT_FOUND));
+
+  const filteredPayments = payments.filter((payment) => {
+    return payment.is_regularized === false;
+  });
+
+  if (filteredPayments.length < 1)
+    return res.status(404).send(errorResponse(NO_PAYMENT_FOUND));
+
+  res.status(200).send(successResponse(SUCCESS, filteredPayments[0]));
+};
