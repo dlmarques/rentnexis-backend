@@ -16,4 +16,10 @@ router.post(
   controller.getUnpaidPaymentsByLease
 );
 
+router.post(
+  "/GetPaidPaymentsByLeaseId",
+  [verifyToken],
+  controller.getPaidPaymentsByLease
+);
+
 module.exports = router;
