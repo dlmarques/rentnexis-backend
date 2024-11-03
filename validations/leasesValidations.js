@@ -3,7 +3,7 @@ const Joi = require("joi");
 const createLeaseValidation = (data) => {
   const schema = Joi.object({
     property_id: Joi.number().required(),
-    landlord_id: Joi.number().required(),
+    landlord_id: Joi.string().uuid().required(),
     lease_start_date: Joi.number().required(),
     lease_end_date: Joi.number().required(),
     rent_amount: Joi.number().required(),
