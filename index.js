@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const { swaggerUi, swaggerSpec } = require("./swagger");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -12,7 +13,7 @@ const leasesRoute = require("./routes/leases");
 const paymentsRoute = require("./routes/payments");
 
 app.use(cors());
-
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 //Middleware
 app.use(express.json());
 
