@@ -5,6 +5,13 @@ const {
   REFRESH_TOKEN_IS_REQUIRED,
   REFRESH_TOKEN_EXPIRED,
   VERIFY_EMAIL,
+  USERNAME_ALREADY_EXISTS,
+  USER_DOES_NOT_EXISTS,
+  UNAUTHORIZED,
+  SUCCESS,
+  UNEXPECTED,
+  INCORRECT_PASSWORD,
+  IF_USER_EXISTS_YOU_WILL_RECEIVE_AN_EMAIL,
 } = require("../utils/constants/responses");
 const {
   cryptPassword,
@@ -27,6 +34,9 @@ const SELECT_USER_BY_ID_QUERY = require("../utils/queries/SelectUserById");
 const paramsValidation = require("../validations/paramsValidation");
 const checkToken = require("../utils/helpers/checkToken");
 const INSERT_USER_QUERY = require("../utils/queries/InsertUser");
+const { use } = require("../routes/payments");
+const UPDATE_USER_PASSWORD_QUERY = require("../utils/queries/UpdateUserPassword");
+const SELECT_USER_BY_EMAIL_QUERY = require("../utils/queries/SelectUserByEmail");
 
 exports.signup = async (req, res) => {
   const { username, email, password, role } = req.body;
@@ -158,7 +168,7 @@ exports.verifyUser = async (req, res, next) => {
 
     const isTokenValid = checkToken(token);
 
-    if (!isTokenValid) throw new Error("Invalid link");
+    if (!isTokenValid) throw new Error("Token is not valid");
 
     const verifiedResult = await pool.query(
       "UPDATE Users SET verified = TRUE WHERE user_id = $1",
@@ -172,5 +182,95 @@ exports.verifyUser = async (req, res, next) => {
     }
   } catch (error) {
     return next(error);
+  }
+};
+
+exports.recoveryPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const userResult = await pool.query(SELECT_USER_BY_EMAIL_QUERY, [email]);
+    const user = userResult.rows[0];
+
+    if (user) {
+      const token = jwt.sign({ id: user.user_id }, config.secret, {
+        algorithm: "HS256",
+        allowInsecureKeySizes: true,
+        expiresIn: "1h",
+      });
+
+      const html = generateVerificationEmail(
+        `${process.env.CLIENT_URL}recovery-password/${user.user_id}/${token}`
+      );
+
+      await sendEmail(email, "Recover your password", html);
+    }
+
+    return res
+      .status(200)
+      .send(successResponse(IF_USER_EXISTS_YOU_WILL_RECEIVE_AN_EMAIL));
+  } catch (error) {
+    console.error("Error during password recovery:", error);
+    return res.status(500).send({ error: "An error occurred" });
+  }
+};
+
+exports.verifyRecoveryPassword = async (req, res) => {
+  const token = req.headers["recovery-token"];
+
+  //get id from token
+  const userId = jwt.decode(token).id;
+
+  const userResult = await pool.query(SELECT_USER_BY_ID_QUERY, [userId]);
+  const user = userResult.rows[0];
+
+  if (!user) return res.status(404).send(errorResponse(USER_DOES_NOT_EXISTS));
+
+  const isTokenValid = checkToken(token);
+
+  if (!isTokenValid) return res.status(401).send(errorResponse(UNAUTHORIZED));
+
+  return res.status(200).send(successResponse(SUCCESS));
+};
+
+exports.changePassword = async (req, res) => {
+  const token = req.headers["recovery-token"];
+  if (token) {
+    const { newPassword } = req.body;
+    const cryptedPassword = await cryptPassword(newPassword);
+
+    const updatePasswordResult = await pool.query(UPDATE_USER_PASSWORD_QUERY, [
+      cryptedPassword,
+      token.id,
+    ]);
+
+    if (updatePasswordResult.rowCount < 1)
+      return res.status(500).send(errorResponse(UNEXPECTED));
+
+    return res.status(200).send(successResponse(SUCCESS));
+  } else {
+    const userToken = req.headers["x-access-token"];
+    const { oldPassword, newPassword } = req.body;
+
+    const result = await pool.query(SELECT_USER_BY_ID_QUERY, [userToken.id]);
+    const user = result.rows[0];
+
+    if (!user) return res.status(500).send(errorResponse(UNEXPECTED));
+
+    const isPasswordValid = comparePassword(oldPassword, user.password);
+
+    if (!isPasswordValid)
+      return res.status(401).send(errorResponse(INCORRECT_PASSWORD));
+
+    const cryptedPassword = await cryptPassword(newPassword);
+
+    const updatePasswordResult = await pool.query(UPDATE_USER_PASSWORD_QUERY, [
+      cryptedPassword,
+      userToken.id,
+    ]);
+
+    if (updatePasswordResult.rowCount < 1)
+      return res.status(500).send(errorResponse(UNEXPECTED));
+
+    return res.status(200).send(successResponse(SUCCESS));
   }
 };
