@@ -5,6 +5,9 @@ const {
   UNEXPECTED,
   THERE_ARE_STILL_ARREARS,
   INCORRET_AMOUNT,
+  NO_LEASE_FOUND,
+  UNAUTHORIZED,
+  SUCCESS,
 } = require("../utils/constants/responses");
 const INSERT_PAYMENT_QUERY = require("../utils/queries/InsertPayment");
 const SELECT_PAYMENT_BY_ID_QUERY = require("../utils/queries/SelectPaymentById");
@@ -16,6 +19,8 @@ const UPDATE_RENT_AMOUNT_PAID_QUERY = require("../utils/queries/UpdateRentAmount
 const UPDATE_REGULARIZED_PAYMENT_STATUS_BY_PAYMENT_ID_QUERY = require("../utils/queries/UpdateRegularizedPaymentStatus");
 const UPDATE_REGULARIZED_LEASE_STATUS_BY_LEASE_ID_QUERY = require("../utils/queries/UpdateRegularizedLeaseStatusByLeaseId");
 const DELETE_PAYMENTS_BY_ID_QUERY = require("../utils/queries/DeletePaymentsById");
+const SELECT_LEASE_BY_ID_QUERY = require("../utils/queries/SelectLeaseById");
+const jwt = require("jsonwebtoken");
 
 //generate payments
 exports.generate = async (payments, months) => {
@@ -144,4 +149,119 @@ exports.deletePayments = async (date, lease_id) => {
     }
   });
   return true;
+};
+
+exports.getAllPaymentsByLease = async (req, res) => {
+  const { leaseId } = req.body;
+  const _token = req.headers["x-access-token"];
+
+  //get id from token
+  const userId = jwt.decode(_token).id;
+
+  const leaseResult = await pool.query(SELECT_LEASE_BY_ID_QUERY, [leaseId]);
+
+  if (leaseResult.rowCount < 1)
+    return res.status(404).send(errorResponse(NO_LEASE_FOUND));
+
+  const lease = leaseResult.rows[0];
+
+  if (lease.landlord_id !== userId && lease.tenant_id !== userId)
+    return res.status(401).send(errorResponse(UNAUTHORIZED));
+
+  const payments = await this.selectPayments(leaseId);
+
+  if (payments.length < 1)
+    res.status(404).send(errorResponse(NO_PAYMENT_FOUND));
+
+  res.status(200).send(successResponse(SUCCESS, payments));
+};
+
+exports.getUnpaidPaymentsByLease = async (req, res) => {
+  const { leaseId } = req.body;
+  const _token = req.headers["x-access-token"];
+
+  //get id from token
+  const userId = jwt.decode(_token).id;
+
+  const leaseResult = await pool.query(SELECT_LEASE_BY_ID_QUERY, [leaseId]);
+
+  if (leaseResult.rowCount < 1)
+    return res.status(404).send(errorResponse(NO_LEASE_FOUND));
+
+  const lease = leaseResult.rows[0];
+
+  if (lease.landlord_id !== userId && lease.tenant_id !== userId)
+    return res.status(401).send(errorResponse(UNAUTHORIZED));
+
+  const payments = await this.selectPayments(leaseId);
+
+  if (payments.length < 1)
+    res.status(404).send(errorResponse(NO_PAYMENT_FOUND));
+
+  const filteredPayments = payments.filter((payment) => {
+    return payment.is_regularized === false;
+  });
+
+  res.status(200).send(successResponse(SUCCESS, filteredPayments));
+};
+
+exports.getPaidPaymentsByLease = async (req, res) => {
+  const { leaseId } = req.body;
+  const _token = req.headers["x-access-token"];
+
+  //get id from token
+  const userId = jwt.decode(_token).id;
+
+  const leaseResult = await pool.query(SELECT_LEASE_BY_ID_QUERY, [leaseId]);
+
+  if (leaseResult.rowCount < 1)
+    return res.status(404).send(errorResponse(NO_LEASE_FOUND));
+
+  const lease = leaseResult.rows[0];
+
+  if (lease.landlord_id !== userId && lease.tenant_id !== userId)
+    return res.status(401).send(errorResponse(UNAUTHORIZED));
+
+  const payments = await this.selectPayments(leaseId);
+
+  if (payments.length < 1)
+    res.status(404).send(errorResponse(NO_PAYMENT_FOUND));
+
+  const filteredPayments = payments.filter((payment) => {
+    return payment.is_regularized === true;
+  });
+
+  res.status(200).send(successResponse(SUCCESS, filteredPayments));
+};
+
+exports.getNextPaymentByLease = async (req, res) => {
+  const { leaseId } = req.body;
+  const _token = req.headers["x-access-token"];
+
+  //get id from token
+  const userId = jwt.decode(_token).id;
+
+  const leaseResult = await pool.query(SELECT_LEASE_BY_ID_QUERY, [leaseId]);
+
+  if (leaseResult.rowCount < 1)
+    return res.status(404).send(errorResponse(NO_LEASE_FOUND));
+
+  const lease = leaseResult.rows[0];
+
+  if (lease.landlord_id !== userId && lease.tenant_id !== userId)
+    return res.status(401).send(errorResponse(UNAUTHORIZED));
+
+  const payments = await this.selectPayments(leaseId);
+
+  if (payments.length < 1)
+    res.status(404).send(errorResponse(NO_PAYMENT_FOUND));
+
+  const filteredPayments = payments.filter((payment) => {
+    return payment.is_regularized === false;
+  });
+
+  if (filteredPayments.length < 1)
+    return res.status(404).send(errorResponse(NO_PAYMENT_FOUND));
+
+  res.status(200).send(successResponse(SUCCESS, filteredPayments[0]));
 };
