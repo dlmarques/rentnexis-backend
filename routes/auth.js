@@ -21,4 +21,9 @@ router.post("/RefreshToken", controller.refreshToken);
 
 router.get("/verify/:id/:token", controller.verifyUser);
 
+router.post("/RecoveryPassword", controller.recoveryPassword);
+
+router.post("/VerifyRecoveryPassword", controller.verifyRecoveryPassword);
+router.post("/ChangePassword", controller.changePassword);
+
 module.exports = router;
