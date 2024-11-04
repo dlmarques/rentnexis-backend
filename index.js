@@ -13,7 +13,10 @@ const leasesRoute = require("./routes/leases");
 const paymentsRoute = require("./routes/payments");
 
 app.use(cors());
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+if (process.env.MODE === "development")
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 //Middleware
 app.use(express.json());
 
