@@ -278,7 +278,7 @@ exports.changePassword = async (req, res) => {
 exports.isLoggedIn = async (req, res) => {
   const token = req.headers["x-access-token"];
 
-  jwt.verify(token, config.secret, (err, decoded) => {
+  jwt.verify(token, config.secret, async (err, decoded) => {
     if (err) {
       return catchError(err, res);
     }
@@ -286,7 +286,13 @@ exports.isLoggedIn = async (req, res) => {
     const now = Math.floor(Date.now() / 1000);
 
     if (decoded.exp > now) {
-      res.status(200).send(successResponse(SUCCESS, { isLoggedIn: true }));
+      const userResult = await pool.query(SELECT_USER_BY_ID_QUERY, [
+        decoded.id,
+      ]);
+      const user = userResult.rows[0];
+      res
+        .status(200)
+        .send(successResponse(SUCCESS, { ...user, isLoggedIn: true }));
     } else {
       res.status(401).send(errorResponse(ACCESS_TOKEN_EXPIRED));
     }
