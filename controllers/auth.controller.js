@@ -12,6 +12,7 @@ const {
   UNEXPECTED,
   INCORRECT_PASSWORD,
   IF_USER_EXISTS_YOU_WILL_RECEIVE_AN_EMAIL,
+  ACCESS_TOKEN_EXPIRED,
 } = require("../utils/constants/responses");
 const {
   cryptPassword,
@@ -34,7 +35,6 @@ const SELECT_USER_BY_ID_QUERY = require("../utils/queries/SelectUserById");
 const paramsValidation = require("../validations/paramsValidation");
 const checkToken = require("../utils/helpers/checkToken");
 const INSERT_USER_QUERY = require("../utils/queries/InsertUser");
-const { use } = require("../routes/payments");
 const UPDATE_USER_PASSWORD_QUERY = require("../utils/queries/UpdateUserPassword");
 const SELECT_USER_BY_EMAIL_QUERY = require("../utils/queries/SelectUserByEmail");
 
@@ -273,4 +273,22 @@ exports.changePassword = async (req, res) => {
 
     return res.status(200).send(successResponse(SUCCESS));
   }
+};
+
+exports.isLoggedIn = async (req, res) => {
+  const token = req.headers["x-access-token"];
+
+  jwt.verify(token, config.secret, (err, decoded) => {
+    if (err) {
+      return catchError(err, res);
+    }
+
+    const now = Math.floor(Date.now() / 1000);
+
+    if (decoded.exp > now) {
+      res.status(200).send(successResponse(SUCCESS, { isLoggedIn: true }));
+    } else {
+      res.status(401).send(errorResponse(ACCESS_TOKEN_EXPIRED));
+    }
+  });
 };

@@ -214,4 +214,6 @@ router.post("/VerifyRecoveryPassword", controller.verifyRecoveryPassword);
  */
 router.post("/ChangePassword", controller.changePassword);
 
+router.get("/IsLoggedIn", controller.isLoggedIn);
+
 module.exports = router;
