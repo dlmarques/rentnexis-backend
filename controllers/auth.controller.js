@@ -11,8 +11,6 @@ const {
   UNEXPECTED,
   INCORRECT_PASSWORD,
   IF_USER_EXISTS_YOU_WILL_RECEIVE_AN_EMAIL,
-  ACCESS_TOKEN_EXPIRED,
-  NO_TOKEN_PROVIDED,
 } = require("../utils/constants/responses");
 const {
   cryptPassword,
@@ -81,7 +79,12 @@ exports.signin = async (req, res) => {
 
   if (!user.verified) return res.status(401).send(errorResponse(VERIFY_EMAIL));
 
-  const isPasswordValid = comparePassword(req.body.username, user.password);
+  const isPasswordValid = await comparePassword(
+    req.body.username,
+    user.password
+  );
+
+  console.log("isValid", isPasswordValid);
   if (!isPasswordValid)
     return res.status(401).send(errorResponse(INCORRECT_USERNAME_OR_PASSWORD));
 
