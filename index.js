@@ -12,7 +12,19 @@ const propertiesRoute = require("./routes/properties");
 const leasesRoute = require("./routes/leases");
 const paymentsRoute = require("./routes/payments");
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:5173"],
+    credentials: true,
+  })
+);
+app.options(
+  "*",
+  cors({
+    origin: ["http://localhost:5173"],
+    credentials: true,
+  })
+);
 
 if (process.env.MODE === "development")
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

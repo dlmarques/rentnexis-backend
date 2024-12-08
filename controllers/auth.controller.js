@@ -5,7 +5,6 @@ const {
   REFRESH_TOKEN_IS_REQUIRED,
   REFRESH_TOKEN_EXPIRED,
   VERIFY_EMAIL,
-  USERNAME_ALREADY_EXISTS,
   USER_DOES_NOT_EXISTS,
   UNAUTHORIZED,
   SUCCESS,
@@ -13,6 +12,7 @@ const {
   INCORRECT_PASSWORD,
   IF_USER_EXISTS_YOU_WILL_RECEIVE_AN_EMAIL,
   ACCESS_TOKEN_EXPIRED,
+  NO_TOKEN_PROVIDED,
 } = require("../utils/constants/responses");
 const {
   cryptPassword,
@@ -278,9 +278,10 @@ exports.changePassword = async (req, res) => {
 exports.isLoggedIn = async (req, res) => {
   const token = req.headers["x-access-token"];
 
+  if (!token) return res.status(200).send(errorResponse({ isLoggedIn: false }));
   jwt.verify(token, config.secret, async (err, decoded) => {
     if (err) {
-      return catchError(err, res);
+      return console.log("Error", err);
     }
 
     const now = Math.floor(Date.now() / 1000);
@@ -294,7 +295,7 @@ exports.isLoggedIn = async (req, res) => {
         .status(200)
         .send(successResponse(SUCCESS, { ...user, isLoggedIn: true }));
     } else {
-      res.status(401).send(errorResponse(ACCESS_TOKEN_EXPIRED));
+      res.status(200).send(errorResponse({ isLoggedIn: false }));
     }
   });
 };
