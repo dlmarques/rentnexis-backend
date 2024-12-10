@@ -84,7 +84,6 @@ exports.signin = async (req, res) => {
     user.password
   );
 
-  console.log("isValid", isPasswordValid);
   if (!isPasswordValid)
     return res.status(401).send(errorResponse(INCORRECT_USERNAME_OR_PASSWORD));
 
@@ -279,26 +278,7 @@ exports.changePassword = async (req, res) => {
 };
 
 exports.isLoggedIn = async (req, res) => {
-  const token = req.headers["x-access-token"];
-
-  if (!token) return res.status(200).send(errorResponse({ isLoggedIn: false }));
-  jwt.verify(token, config.secret, async (err, decoded) => {
-    if (err) {
-      return console.log("Error", err);
-    }
-
-    const now = Math.floor(Date.now() / 1000);
-
-    if (decoded.exp > now) {
-      const userResult = await pool.query(SELECT_USER_BY_ID_QUERY, [
-        decoded.id,
-      ]);
-      const user = userResult.rows[0];
-      res
-        .status(200)
-        .send(successResponse(SUCCESS, { ...user, isLoggedIn: true }));
-    } else {
-      res.status(200).send(errorResponse({ isLoggedIn: false }));
-    }
-  });
+  const authState = req.auth;
+  const isLoggedIn = authState.userId !== null;
+  return res.status(200).send(successResponse(SUCCESS, { isLoggedIn }));
 };
