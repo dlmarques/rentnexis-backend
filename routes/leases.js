@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const controller = require("../controllers/leases.controller");
 const verifyRole = require("../middleware/verifyRole");
+const { verifyToken } = require("../middleware/verifyToken");
 
 /**
  * @swagger
@@ -46,7 +47,11 @@ const verifyRole = require("../middleware/verifyRole");
  *       500:
  *         description: Unexpected error
  */
-router.post("/CreateLease", [verifyRole.isLandlord], controller.create);
+router.post(
+  "/CreateLease",
+  [verifyToken, verifyRole.isLandlord],
+  controller.create
+);
 
 /**
  * @swagger
@@ -73,7 +78,7 @@ router.post("/CreateLease", [verifyRole.isLandlord], controller.create);
  *       500:
  *         description: Unexpected error
  */
-router.post("/StartLease", controller.start);
+router.post("/StartLease", [verifyToken], controller.start);
 
 /**
  * @swagger
@@ -108,7 +113,11 @@ router.post("/StartLease", controller.start);
  *       500:
  *         description: Unexpected error
  */
-router.post("/RenewLease", [verifyRole.isLandlord], controller.renew);
+router.post(
+  "/RenewLease",
+  [verifyToken, verifyRole.isLandlord],
+  controller.renew
+);
 
 /**
  * @swagger
@@ -142,7 +151,7 @@ router.post("/RenewLease", [verifyRole.isLandlord], controller.renew);
  */
 router.patch(
   "/UpdateRentAmount",
-  [verifyRole.isLandlord],
+  [verifyToken, verifyRole.isLandlord],
   controller.updateRentAmount
 );
 
@@ -171,6 +180,10 @@ router.patch(
  *       409:
  *         description: Lease not found or unexpected error
  */
-router.post("/StopLease", [verifyRole.isLandlord], controller.stop);
+router.post(
+  "/StopLease",
+  [verifyToken, verifyRole.isLandlord],
+  controller.stop
+);
 
 module.exports = router;
