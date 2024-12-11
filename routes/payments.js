@@ -1,5 +1,4 @@
 const router = require("express").Router();
-const { verifyToken } = require("../middleware");
 const controller = require("../controllers/payments.controller");
 
 /**
@@ -38,7 +37,7 @@ const controller = require("../controllers/payments.controller");
  *       500:
  *         description: No payment found or incorrect amount
  */
-router.post("/PayRent", [verifyToken], controller.pay);
+router.post("/PayRent", controller.pay);
 
 /**
  * @swagger
@@ -65,11 +64,7 @@ router.post("/PayRent", [verifyToken], controller.pay);
  *       404:
  *         description: No lease or payments found
  */
-router.post(
-  "/GetAllPaymentsByLeaseId",
-  [verifyToken],
-  controller.getAllPaymentsByLease
-);
+router.post("/GetAllPaymentsByLeaseId", controller.getAllPaymentsByLease);
 
 /**
  * @swagger
@@ -96,11 +91,7 @@ router.post(
  *       404:
  *         description: No lease or unpaid payments found
  */
-router.post(
-  "/GetUnpaidPaymentsByLeaseId",
-  [verifyToken],
-  controller.getUnpaidPaymentsByLease
-);
+router.post("/GetUnpaidPaymentsByLeaseId", controller.getUnpaidPaymentsByLease);
 
 /**
  * @swagger
@@ -127,11 +118,7 @@ router.post(
  *       404:
  *         description: No lease or paid payments found
  */
-router.post(
-  "/GetPaidPaymentsByLeaseId",
-  [verifyToken],
-  controller.getPaidPaymentsByLease
-);
+router.post("/GetPaidPaymentsByLeaseId", controller.getPaidPaymentsByLease);
 
 /**
  * @swagger
@@ -158,10 +145,6 @@ router.post(
  *       404:
  *         description: No lease or unpaid payments found
  */
-router.post(
-  "/GetNextPaymentByLeaseId",
-  [verifyToken],
-  controller.getNextPaymentByLease
-);
+router.post("/GetNextPaymentByLeaseId", controller.getNextPaymentByLease);
 
 module.exports = router;
