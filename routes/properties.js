@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const controller = require("../controllers/properties.controller");
 const verifyRole = require("../middleware/verifyRole");
+const { verifyToken } = require("../middleware/verifyToken");
 
 /**
  * @swagger
@@ -50,7 +51,11 @@ const verifyRole = require("../middleware/verifyRole");
  *       500:
  *         description: Unexpected error
  */
-router.post("/CreateProperty", [verifyRole.isLandlord], controller.create);
+router.post(
+  "/CreateProperty",
+  [verifyToken, verifyRole.isLandlord],
+  controller.create
+);
 
 /**
  * @swagger
@@ -68,7 +73,7 @@ router.post("/CreateProperty", [verifyRole.isLandlord], controller.create);
  */
 router.get(
   "/GetAllProperties",
-  [verifyRole.isLandlord],
+  [verifyToken, verifyRole.isLandlord],
   controller.getAllProperties
 );
 
@@ -99,7 +104,7 @@ router.get(
  */
 router.post(
   "/GetPropertyById",
-  [verifyRole.isLandlord],
+  [verifyToken, verifyRole.isLandlord],
   controller.getPropertyById
 );
 
@@ -130,7 +135,7 @@ router.post(
  */
 router.delete(
   "/DeleteProperty",
-  [verifyRole.isLandlord],
+  [verifyToken, verifyRole.isLandlord],
   controller.deleteProperty
 );
 
@@ -175,7 +180,7 @@ router.delete(
  */
 router.patch(
   "/UpdateProperty",
-  [verifyRole.isLandlord],
+  [verifyToken, verifyRole.isLandlord],
   controller.updateProperty
 );
 
