@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const controller = require("../controllers/payments.controller");
+const { verifyTokenMiddleware } = require("../middleware/index");
 
 /**
  * @swagger
@@ -37,7 +38,7 @@ const controller = require("../controllers/payments.controller");
  *       500:
  *         description: No payment found or incorrect amount
  */
-router.post("/PayRent", [verifyToken], controller.pay);
+router.post("/PayRent", [verifyTokenMiddleware], controller.pay);
 
 /**
  * @swagger
@@ -66,7 +67,7 @@ router.post("/PayRent", [verifyToken], controller.pay);
  */
 router.post(
   "/GetAllPaymentsByLeaseId",
-  [verifyToken],
+  [verifyTokenMiddleware],
   controller.getAllPaymentsByLease
 );
 
@@ -97,7 +98,7 @@ router.post(
  */
 router.post(
   "/GetUnpaidPaymentsByLeaseId",
-  [verifyToken],
+  [verifyTokenMiddleware],
   controller.getUnpaidPaymentsByLease
 );
 
@@ -128,7 +129,7 @@ router.post(
  */
 router.post(
   "/GetPaidPaymentsByLeaseId",
-  [verifyToken],
+  [verifyTokenMiddleware],
   controller.getPaidPaymentsByLease
 );
 
@@ -159,7 +160,7 @@ router.post(
  */
 router.post(
   "/GetNextPaymentByLeaseId",
-  [verifyToken],
+  [verifyTokenMiddleware],
   controller.getNextPaymentByLease
 );
 
