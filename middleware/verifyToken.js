@@ -1,6 +1,6 @@
-import { verifyToken } from "@clerk/backend";
+const { verifyToken } = require("@clerk/backend");
 
-export async function verifyToken(req, res, next) {
+const verifyTokenMiddleware = async (req, res, next) => {
   const token = req.headers.get("Authorization")?.replace("Bearer ", "");
 
   if (!token) {
@@ -19,4 +19,6 @@ export async function verifyToken(req, res, next) {
   } catch (error) {
     return Response.json({ error: "Token not verified." }, { status: 401 });
   }
-}
+};
+
+module.exports = verifyTokenMiddleware;
