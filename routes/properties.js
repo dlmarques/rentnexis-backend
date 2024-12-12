@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const controller = require("../controllers/properties.controller");
 const verifyRole = require("../middleware/verifyRole");
-const { verifyToken } = require("../middleware/verifyToken");
+const { verifyTokenMiddleware } = require("../middleware/index");
 
 /**
  * @swagger
@@ -53,7 +53,7 @@ const { verifyToken } = require("../middleware/verifyToken");
  */
 router.post(
   "/CreateProperty",
-  [verifyToken, verifyRole.isLandlord],
+  [verifyTokenMiddleware, verifyRole.isLandlord],
   controller.create
 );
 
@@ -73,7 +73,7 @@ router.post(
  */
 router.get(
   "/GetAllProperties",
-  [verifyToken, verifyRole.isLandlord],
+  [verifyTokenMiddleware, verifyRole.isLandlord],
   controller.getAllProperties
 );
 
@@ -104,7 +104,7 @@ router.get(
  */
 router.post(
   "/GetPropertyById",
-  [verifyToken, verifyRole.isLandlord],
+  [verifyTokenMiddleware, verifyRole.isLandlord],
   controller.getPropertyById
 );
 
@@ -135,7 +135,7 @@ router.post(
  */
 router.delete(
   "/DeleteProperty",
-  [verifyToken, verifyRole.isLandlord],
+  [verifyTokenMiddleware, verifyRole.isLandlord],
   controller.deleteProperty
 );
 
@@ -180,7 +180,7 @@ router.delete(
  */
 router.patch(
   "/UpdateProperty",
-  [verifyToken, verifyRole.isLandlord],
+  [verifyTokenMiddleware, verifyRole.isLandlord],
   controller.updateProperty
 );
 
