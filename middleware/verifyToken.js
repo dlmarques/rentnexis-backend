@@ -1,7 +1,7 @@
 const { verifyToken } = require("@clerk/backend");
 
 const verifyTokenMiddleware = async (req, res, next) => {
-  const token = req.headers.get("Authorization")?.replace("Bearer ", "");
+  const token = req.headers["authorization"]?.replace("Bearer ", "");
 
   if (!token) {
     return res.json(
@@ -15,6 +15,7 @@ const verifyTokenMiddleware = async (req, res, next) => {
       jwtKey: process.env.CLERK_JWT_KEY,
       authorizedParties: ["http://localhost:5173"],
     });
+
     if (verifiedToken) next();
   } catch (error) {
     return Response.json({ error: "Token not verified." }, { status: 401 });

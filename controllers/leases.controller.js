@@ -80,24 +80,24 @@ schedule.scheduleJob("0 0 * * *", async () => {
 });
 
 exports.create = async (req, res) => {
-  const _token = req.headers["x-access-token"];
+  const _token = req.headers["authorization"]?.replace("Bearer ", "");
 
   //get id from token
-  const landlord_id = jwt.decode(_token).id;
+  const landlordId = jwt.decode(_token).sub;
 
   //get data from request body
   const {
-    property_id,
-    lease_start_date,
-    lease_end_date,
-    rent_amount,
-    first_payment_amount,
-    guarantee_amount,
+    propertyId,
+    leaseStartDate,
+    leaseEndDate,
+    rentAmount,
+    firstPaymentAmount,
+    guaranteeAmount,
   } = req.body;
 
   //check if property exists
   const selectPropertyResult = await pool.query(SELECT_PROPERTY_BY_ID_QUERY, [
-    property_id,
+    propertyId,
   ]);
 
   if (selectPropertyResult.rowCount < 1) {
@@ -105,8 +105,8 @@ exports.create = async (req, res) => {
   }
 
   //check if lease start date are valid
-  const startDate = moment(lease_start_date * 1000);
-  const endDate = moment(lease_end_date * 1000);
+  const startDate = moment(leaseStartDate * 1000);
+  const endDate = moment(leaseEndDate * 1000);
 
   const diff = startDate.diff(moment.now(), "days");
 
@@ -128,7 +128,7 @@ exports.create = async (req, res) => {
   // select lease by property_id
   const selectLeasesResult = await pool.query(
     SELECT_LEASE_BY_PROPERTY_ID_QUERY,
-    [property_id]
+    [propertyId]
   );
 
   //check leases status
@@ -151,38 +151,38 @@ exports.create = async (req, res) => {
     }
   }
 
-  const is_regularized = false;
-  const is_active = false;
-  const access_code = generateRandomString(6);
+  const isRegularized = false;
+  const isActive = false;
+  const accessCode = generateRandomString(6);
 
   //validate data model
   const { error } = createLeaseValidation({
-    property_id,
-    landlord_id,
-    lease_start_date,
-    lease_end_date,
-    rent_amount,
-    first_payment_amount,
-    guarantee_amount,
-    is_regularized,
-    is_active,
-    access_code,
+    propertyId,
+    landlordId,
+    leaseStartDate,
+    leaseEndDate,
+    rentAmount,
+    firstPaymentAmount,
+    guaranteeAmount,
+    isRegularized,
+    isActive,
+    accessCode,
   });
 
   if (error) return res.status(500).send(errorResponse(error));
 
   //insert lease
   const insertResult = await pool.query(INSERT_LEASE_QUERY, [
-    property_id,
-    landlord_id,
-    lease_start_date,
-    lease_end_date,
-    rent_amount,
-    first_payment_amount,
-    guarantee_amount,
-    is_regularized,
-    is_active,
-    access_code,
+    propertyId,
+    landlordId,
+    leaseStartDate,
+    leaseEndDate,
+    rentAmount,
+    firstPaymentAmount,
+    guaranteeAmount,
+    isRegularized,
+    isActive,
+    accessCode,
     false,
   ]);
 
@@ -193,16 +193,16 @@ exports.create = async (req, res) => {
 };
 
 exports.start = async (req, res) => {
-  const _token = req.headers["x-access-token"];
+  const _token = req.headers["authorization"]?.replace("Bearer ", "");
 
   //get id from token
-  const id = jwt.decode(_token).id;
+  const id = jwt.decode(_token).sub;
 
-  const { access_code } = req.body;
+  const { accessCode } = req.body;
 
   const selectLeaseResult = await pool.query(
     SELECT_LEASE_BY_ACCESS_CODE_QUERY,
-    [access_code]
+    [accessCode]
   );
 
   if (selectLeaseResult.rowCount < 1) {
@@ -221,7 +221,7 @@ exports.start = async (req, res) => {
 
   const updateLeaseResult = await pool.query(
     UPDATE_LEASE_BY_ACCESS_CODE_QUERY,
-    [id, true, access_code]
+    [id, true, accessCode]
   );
 
   if (updateLeaseResult.rowCount > 0) {
@@ -269,16 +269,16 @@ exports.start = async (req, res) => {
 };
 
 exports.updateRentAmount = async (req, res) => {
-  const _token = req.headers["x-access-token"];
+  const _token = req.headers["authorization"]?.replace("Bearer ", "");
 
   //get id from token
-  const landlordId = jwt.decode(_token).id;
+  const landlordId = jwt.decode(_token).sub;
 
-  const { lease_id, rent_amount, start_date } = req.body;
+  const { leaseId, rentAmount, startDate } = req.body;
 
   const selectResult = await pool.query(
     SELECT_LEASE_BY_LANDLORD_ID_AND_LEASE_ID_QUERY,
-    [landlordId, lease_id]
+    [landlordId, leaseId]
   );
 
   if (selectResult.rowCount < 1)
@@ -286,7 +286,7 @@ exports.updateRentAmount = async (req, res) => {
 
   const updateRentAmountResult = await pool.query(
     UPDATE_LEASE_RENT_AMOUNT_BY_LEASE_ID_QUERY,
-    [rent_amount, lease_id]
+    [rentAmount, leaseId]
   );
 
   if (updateRentAmountResult.rowCount < 1)
@@ -303,7 +303,7 @@ exports.updateRentAmount = async (req, res) => {
 
   filteredPayments.forEach(async (payment) => {
     const updateResult = await pool.query(UPDATE_PAYMENT_AMOUNT_BY_PAYMENT_ID, [
-      rent_amount,
+      rentAmount,
       payment.payment_id,
     ]);
 
@@ -314,15 +314,15 @@ exports.updateRentAmount = async (req, res) => {
 };
 
 exports.stop = async (req, res) => {
-  const _token = req.headers["x-access-token"];
+  const _token = req.headers["authorization"]?.replace("Bearer ", "");
 
   //get id from token
-  const id = jwt.decode(_token).id;
+  const id = jwt.decode(_token).sub;
 
-  const { lease_id } = req.body;
+  const { leaseId } = req.body;
 
   const selectLeaseResult = await pool.query(SELECT_LEASE_BY_ID_QUERY, [
-    lease_id,
+    leaseId,
   ]);
 
   if (selectLeaseResult.rowCount < 1)
@@ -337,14 +337,14 @@ exports.stop = async (req, res) => {
     today,
     false,
     true,
-    lease_id,
+    leaseId,
   ]);
 
   if (stopLeaseResult.rowCount < 1) {
     return res.status(409).send(errorResponse(UNEXPECTED));
   }
 
-  const success = await paymentsController.deletePayments(today, lease_id);
+  const success = await paymentsController.deletePayments(today, leaseId);
 
   if (!success) return res.status(409).send(errorResponse(UNEXPECTED));
 
@@ -354,28 +354,28 @@ exports.stop = async (req, res) => {
 };
 
 exports.renew = async (req, res) => {
-  const _token = req.headers["x-access-token"];
+  const _token = req.headers["authorization"]?.replace("Bearer ", "");
 
   //get id from token
-  const landlord_id = jwt.decode(_token).id;
+  const landlordId = jwt.decode(_token).sub;
 
   //get data from request body
-  const { lease_id, lease_start_date, lease_end_date } = req.body;
+  const { leaseId, leaseStartDate, leaseEndDate } = req.body;
 
   const selectLeaseResult = await pool.query(SELECT_LEASE_BY_ID_QUERY, [
-    lease_id,
+    leaseId,
   ]);
 
   if (selectLeaseResult.rowCount < 1)
     return res.status(404).send(errorResponse(NO_LEASE_FOUND));
 
-  if (selectLeaseResult.rows[0].landlord_id !== landlord_id)
+  if (selectLeaseResult.rows[0].landlord_id !== landlordId)
     return res
       .status(409)
       .send(errorResponse(YOU_ARE_NOT_THE_LANDLORD_OF_THIS_PROPERTY));
 
-  const startDate = moment(lease_start_date);
-  const endDate = moment(lease_end_date);
+  const startDate = moment(leaseStartDate);
+  const endDate = moment(leaseEndDate);
 
   //check if lease start date are valid
   if (!startDate.isAfter(moment(selectLeaseResult.rows[0].lease_end_date))) {
@@ -398,18 +398,18 @@ exports.renew = async (req, res) => {
   const diffInMonths = endDate.diff(startDate, "months");
 
   const payments = generateRenewalPayments({
-    lease_id,
+    leaseId,
     first_payment: selectLeaseResult.rows[0].rent_amount,
     rent_amount: selectLeaseResult.rows[0].rent_amount,
     months: diffInMonths,
-    startDate: lease_start_date,
+    startDate: leaseStartDate,
   });
 
   const result = paymentsController.generate(payments, diffInMonths);
 
   const updateLeaseEndDateResult = await pool.query(
     UPDATE_LEASE_END_DATE_BY_LEASE_ID_QUERY,
-    [lease_end_date, lease_id]
+    [leaseEndDate, leaseId]
   );
 
   if (updateLeaseEndDateResult.rowCount < 1)

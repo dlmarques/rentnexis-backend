@@ -39,8 +39,8 @@ exports.isFirstLogin = async (req, res) => {
   const { email } = req.body;
 
   const userResult = await pool.query(SELECT_USER_BY_EMAIL_QUERY, [email]);
-
-  if (userResult.rows < 1)
+  console.log(userResult);
+  if (!userResult.rows[0].exists)
     return res
       .status(200)
       .send(successResponse(SUCCESS, { isFirstLogin: true }));

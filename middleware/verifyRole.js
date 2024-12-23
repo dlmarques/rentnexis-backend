@@ -6,13 +6,13 @@ const errorResponse = require("../utils/responses/error");
 const jwt = require("jsonwebtoken");
 
 const isLandlord = async (req, res, next) => {
-  const _token = req.headers["x-access-token"];
+  const _token = req.headers["authorization"]?.replace("Bearer ", "");
 
   const decodedToken = await jwt.decode(_token);
-
+  console.log("decoded", decodedToken);
   if (decodedToken) {
     const userResult = await pool.query(SELECT_USER_BY_ID_QUERY, [
-      decodedToken.id,
+      decodedToken.sub,
     ]);
     const user = userResult.rows[0];
 

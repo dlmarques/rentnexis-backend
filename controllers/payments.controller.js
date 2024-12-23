@@ -153,10 +153,10 @@ exports.deletePayments = async (date, lease_id) => {
 
 exports.getAllPaymentsByLease = async (req, res) => {
   const { leaseId } = req.body;
-  const _token = req.headers["x-access-token"];
+  const _token = req.headers["authorization"]?.replace("Bearer ", "");
 
   //get id from token
-  const userId = jwt.decode(_token).id;
+  const userId = jwt.decode(_token).sub;
 
   const leaseResult = await pool.query(SELECT_LEASE_BY_ID_QUERY, [leaseId]);
 
@@ -178,10 +178,10 @@ exports.getAllPaymentsByLease = async (req, res) => {
 
 exports.getUnpaidPaymentsByLease = async (req, res) => {
   const { leaseId } = req.body;
-  const _token = req.headers["x-access-token"];
+  const _token = req.headers["authorization"]?.replace("Bearer ", "");
 
   //get id from token
-  const userId = jwt.decode(_token).id;
+  const userId = jwt.decode(_token).sub;
 
   const leaseResult = await pool.query(SELECT_LEASE_BY_ID_QUERY, [leaseId]);
 
@@ -207,10 +207,10 @@ exports.getUnpaidPaymentsByLease = async (req, res) => {
 
 exports.getPaidPaymentsByLease = async (req, res) => {
   const { leaseId } = req.body;
-  const _token = req.headers["x-access-token"];
+  const _token = req.headers["authorization"]?.replace("Bearer ", "");
 
   //get id from token
-  const userId = jwt.decode(_token).id;
+  const userId = jwt.decode(_token).sub;
 
   const leaseResult = await pool.query(SELECT_LEASE_BY_ID_QUERY, [leaseId]);
 
@@ -236,10 +236,10 @@ exports.getPaidPaymentsByLease = async (req, res) => {
 
 exports.getNextPaymentByLease = async (req, res) => {
   const { leaseId } = req.body;
-  const _token = req.headers["x-access-token"];
+  const _token = req.headers["authorization"]?.replace("Bearer ", "");
 
   //get id from token
-  const userId = jwt.decode(_token).id;
+  const userId = jwt.decode(_token).sub;
 
   const leaseResult = await pool.query(SELECT_LEASE_BY_ID_QUERY, [leaseId]);
 

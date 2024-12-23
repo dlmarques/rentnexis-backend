@@ -17,16 +17,19 @@ const UPDATE_PROPERTY_BY_ID_QUERY = require("../utils/queries/UpdatePropertyById
 const propertiesValidations = require("../validations/propertiesValidations");
 const SELECT_PROPERTY_BY_ID_AND_USER_ID_QUERY = require("../utils/queries/SelectPropertyByIdAndUserId");
 const SELECT_ALL_PROPERTIES_BY_ID_QUERY = require("../utils/queries/SelectAllPropertiesById");
+const SELECT_LEASE_BY_PROPERTY_ID_QUERY = require("../utils/queries/SelectLeaseByPropertyId");
+const LEASE_STATUS = require("../utils/constants/leaseStatus");
 
 exports.create = async (req, res) => {
-  const _token = req.headers["x-access-token"];
+  console.log("body", req.body);
+  const _token = req.headers["authorization"]?.replace("Bearer ", "");
 
   //get id from token
-  const id = jwt.decode(_token).id;
+  const id = jwt.decode(_token).sub;
 
   //get data from request body
   const {
-    property_name,
+    propertyName,
     address,
     description,
     rooms,
@@ -37,7 +40,7 @@ exports.create = async (req, res) => {
 
   //validate data model
   const { error } = propertiesValidations.createPropertyValidation({
-    property_name,
+    propertyName,
     address,
     description,
     rooms,
@@ -52,7 +55,7 @@ exports.create = async (req, res) => {
   // select property by property_name and owner_id
   const selectResult = await pool.query(
     SELECT_PROPERTY_BY_NAME_AND_USER_ID_QUERY,
-    [property_name, id]
+    [propertyName, id]
   );
 
   // if any property was returned throw an error
@@ -61,7 +64,7 @@ exports.create = async (req, res) => {
 
   //insert property
   const insertResult = await pool.query(INSERT_PROPERTY_QUERY, [
-    property_name,
+    propertyName,
     address,
     description,
     rooms,
@@ -78,14 +81,51 @@ exports.create = async (req, res) => {
 };
 
 exports.getAllProperties = async (req, res) => {
-  const _token = req.headers["x-access-token"];
-
-  const id = jwt.decode(_token).id;
+  const _token = req.headers["authorization"]?.replace("Bearer ", "");
+  const id = jwt.decode(_token).sub;
   try {
     const result = await pool.query(SELECT_ALL_PROPERTIES_BY_ID_QUERY, [id]);
 
+    const allProperties = result.rows.map(async (property) => {
+      const leaseResult = await pool.query(SELECT_LEASE_BY_PROPERTY_ID_QUERY, [
+        property.property_id,
+      ]);
+      if (leaseResult.rowCount < 1)
+        return {
+          propertyId: property.property_id,
+          propertyName: property.property_name,
+          status: {
+            type: LEASE_STATUS.LEASE_STATUS_TYPE.false,
+            key: LEASE_STATUS.LEASE_STATUS_KEY.false,
+          },
+          address: property.address,
+          description: property.description,
+          rooms: property.rooms,
+          bathrooms: property.bathrooms,
+          ameneties: property.ameneties,
+          rules: property.rules,
+          ownerId: property.owner_id,
+        };
+
+      return {
+        propertyId: property.property_id,
+        propertyName: property.property_name,
+        status: {
+          type: LEASE_STATUS.LEASE_STATUS_TYPE[leaseResult.rows[0].is_active],
+          key: LEASE_STATUS.LEASE_STATUS_KEY[leaseResult.rows[0].is_active],
+        },
+        address: property.address,
+        description: property.description,
+        rooms: property.rooms,
+        bathrooms: property.bathrooms,
+        ameneties: property.ameneties,
+        rules: property.rules,
+        ownerId: property.owner_id,
+      };
+    });
+
     if (result.rowCount > 0)
-      return res.status(200).send(successResponse(SUCCESS, result.rows));
+      return res.status(200).send(successResponse(SUCCESS, allProperties));
 
     return res.status(200).send(errorResponse(NO_PROPERTIES_FOUND));
   } catch (error) {
@@ -94,15 +134,15 @@ exports.getAllProperties = async (req, res) => {
 };
 
 exports.getPropertyById = async (req, res) => {
-  const _token = req.headers["x-access-token"];
+  const _token = req.headers["authorization"]?.replace("Bearer ", "");
 
-  const id = jwt.decode(_token).id;
+  const id = jwt.decode(_token).sub;
 
-  const { property_id } = req.body;
+  const { propertyId } = req.body;
 
   try {
     const result = await pool.query(SELECT_PROPERTY_BY_ID_AND_USER_ID_QUERY, [
-      property_id,
+      propertyId,
       id,
     ]);
 
@@ -116,15 +156,15 @@ exports.getPropertyById = async (req, res) => {
 };
 
 exports.deleteProperty = async (req, res) => {
-  const _token = req.headers["x-access-token"];
+  const _token = req.headers["authorization"]?.replace("Bearer ", "");
 
-  const id = jwt.decode(_token).id;
+  const id = jwt.decode(_token).sub;
 
-  const { property_id } = req.body;
+  const { propertyId } = req.body;
 
   try {
     const result = await pool.query(DELETE_PROPERTY_BY_ID_QUERY, [
-      property_id,
+      propertyId,
       id,
     ]);
 
@@ -138,14 +178,14 @@ exports.deleteProperty = async (req, res) => {
 };
 
 exports.updateProperty = async (req, res) => {
-  const _token = req.headers["x-access-token"];
+  const _token = req.headers["authorization"]?.replace("Bearer ", "");
 
   //get id from token
-  const id = jwt.decode(_token).id;
+  const id = jwt.decode(_token).sub;
 
   //get data from request body
   const {
-    property_name,
+    propertyName,
     address,
     description,
     rooms,
@@ -156,7 +196,7 @@ exports.updateProperty = async (req, res) => {
 
   //validate data model
   const { error } = propertiesValidations.updatePropertyValidation({
-    property_name,
+    propertyName,
     address,
     description,
     rooms,
@@ -170,7 +210,7 @@ exports.updateProperty = async (req, res) => {
 
   //update property
   const updateResult = await pool.query(UPDATE_PROPERTY_BY_ID_QUERY, [
-    property_name,
+    propertyName,
     address,
     description,
     rooms,
